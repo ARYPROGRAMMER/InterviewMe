@@ -8,24 +8,47 @@ import { Button } from "./ui/button";
 import Image from "next/image";
 import { Form } from "./ui/form";
 import Link from "next/link";
+import { toast } from "sonner";
+import FormField from "./FormField";
+import { useRouter } from "next/navigation";
 
-const formSchema = z.object({
-  username: z.string().max(40),
-});
+const authFormSchema = (type: FormType) => {
+  return z.object({
+    name: type === "sign-up" ? z.string().min(3) : z.string().optional(),
+    email: z.string().email(),
+    password: z.string().min(3),
+  });
+};
 
-const AuthForm = ( {type} : {type: FormType} ) => {
+const AuthForm = ({ type }: { type: FormType }) => {
+  const router = useRouter();
+  const formSchema = authFormSchema(type);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "",
+      email: "",
+      password: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    try {
+      if (type === "sign-up") {
+          toast.success('acc created');
+          router.push('/sign-in');
+      } else {
+        toast.success('acc logged in');
+        router.push('/');
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(`There was an error: ${error}`);
+    }
   }
 
-  const isSignin = type === 'sign-in' ;
+  const isSignin = type === "sign-in";
 
   return (
     <div className="card-border lg:min-w-[566px]">
@@ -37,18 +60,45 @@ const AuthForm = ( {type} : {type: FormType} ) => {
         <h3>Practice Job Interviews with AI</h3>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 mt-4 form">
-            
-            {!isSignin && <p>Name</p>}
-            <p>Email</p>
-            <p>Password</p>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full space-y-6 mt-4 form"
+          >
+            {!isSignin && (
+              <FormField
+                control={form.control}
+                name="name"
+                label="name"
+                placeholder="Your name"
+              />
+            )}
+            <FormField
+              control={form.control}
+              name="email"
+              label="email"
+              placeholder="Your email"
+              type="email"
+            />
 
-            <Button className="btn" type="submit">{isSignin? 'Sign In': 'Create an Account'} </Button>
+            <FormField
+              control={form.control}
+              name="password"
+              label="password"
+              placeholder="Your password"
+              type="password"
+            />
+
+            <Button className="btn" type="submit">
+              {isSignin ? "Sign In" : "Create an Account"}{" "}
+            </Button>
           </form>
         </Form>
         <p className="text-center">
-          {isSignin?'No account yet?':'Have an account already'}
-          <Link href={!isSignin? '/sign-in': '/sign-up'} className="font-bold text-user-primary ml-1">
+          {isSignin ? "No account yet?" : "Have an account already"}
+          <Link
+            href={!isSignin ? "/sign-in" : "/sign-up"}
+            className="font-bold text-user-primary ml-1"
+          >
             {!isSignin ? "Sign In" : "Sign Up"}
           </Link>
         </p>
