@@ -1,6 +1,5 @@
 import InterviewCard from "@/components/InterviewCard";
 import { Button } from "@/components/ui/button";
-import { dummyInterviews } from "@/constants";
 import {
   getCurrentUser,
   getInterviewByUserId,
