@@ -14,11 +14,11 @@ const Page = async () => {
 
   const [userInterviews, latestInterviews] = await Promise.all([
     await getInterviewByUserId(user?.id!),
-    await getLatestInterviews({userId: user?.id!}),
+    await getLatestInterviews({ userId: user?.id! }),
   ]);
 
   const hasPastInterviews = userInterviews?.length! > 0;
-  const hasUpcomingInterviews = latestInterviews?.length! > 0; 
+  const hasUpcomingInterviews = latestInterviews?.length! > 0;
 
   return (
     <>
@@ -59,15 +59,13 @@ const Page = async () => {
         <h2>Take an Interview</h2>
 
         <div className="interviews-section">
-        {hasUpcomingInterviews ? (
+          {hasUpcomingInterviews ? (
             latestInterviews?.map((interview) => (
               <InterviewCard {...interview} key={interview.id} />
             ))
           ) : (
-             <p>There are no interviews available</p>
+            <p>There are no interviews available</p>
           )}
-
-         
         </div>
       </section>
     </>

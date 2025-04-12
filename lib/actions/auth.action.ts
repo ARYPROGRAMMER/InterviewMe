@@ -18,11 +18,14 @@ export async function signUp(params: SignUpParams) {
       };
     }
 
-    await db.collection("users").doc(uid).set({
-      name,
-      email,
-      photoURL: photoURL || null,
-    });
+    await db
+      .collection("users")
+      .doc(uid)
+      .set({
+        name,
+        email,
+        photoURL: photoURL || null,
+      });
 
     return {
       success: true,

@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/actions/auth.action";
-import { getFeedbackByInterviewId, getInterviewById } from "@/lib/actions/general.action";
+import {
+  getFeedbackByInterviewId,
+  getInterviewById,
+} from "@/lib/actions/general.action";
 import dayjs from "dayjs";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +11,7 @@ import { redirect } from "next/navigation";
 import React from "react";
 
 const Page = async ({ params }: RouteParams) => {
-  const {id} = await params;
+  const { id } = await params;
   const user = await getCurrentUser();
   const interview = await getInterviewById(id);
 
@@ -16,11 +19,10 @@ const Page = async ({ params }: RouteParams) => {
 
   const feedback = await getFeedbackByInterviewId({
     interviewId: id,
-    userId: user?.id!
+    userId: user?.id!,
   });
 
-
-   return (
+  return (
     <section className="section-feedback">
       <div className="flex flex-row justify-center">
         <h1 className="text-4xl font-semibold text-primary-100">
@@ -57,15 +59,22 @@ const Page = async ({ params }: RouteParams) => {
 
       <div className="card-border w-full">
         <div className="card p-6">
-          <p className="text-xl leading-relaxed italic text-light-100">{feedback?.finalAssessment}</p>
+          <p className="text-xl leading-relaxed italic text-light-100">
+            {feedback?.finalAssessment}
+          </p>
         </div>
       </div>
 
       {/* Interview Breakdown */}
       <div className="flex flex-col gap-6">
-        <h2 className="border-b border-light-400/30 pb-2">Breakdown of the Interview:</h2>
+        <h2 className="border-b border-light-400/30 pb-2">
+          Breakdown of the Interview:
+        </h2>
         {feedback?.categoryScores?.map((category, index) => (
-          <div key={index} className="bg-dark-200/30 p-5 rounded-xl hover:bg-dark-200/50 transition-colors duration-200">
+          <div
+            key={index}
+            className="bg-dark-200/30 p-5 rounded-xl hover:bg-dark-200/50 transition-colors duration-200"
+          >
             <div className="flex justify-between items-center mb-2">
               <p className="font-bold text-xl text-primary-100">
                 {index + 1}. {category.name}
@@ -84,21 +93,43 @@ const Page = async ({ params }: RouteParams) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-dark-200/30 p-6 rounded-xl">
           <h3 className="text-primary-100 mb-4 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 12l5 5 9-9"></path>
             </svg>
             Strengths
           </h3>
           <ul className="space-y-2">
             {feedback?.strengths?.map((strength, index) => (
-              <li key={index} className="pl-2">{strength}</li>
+              <li key={index} className="pl-2">
+                {strength}
+              </li>
             ))}
           </ul>
         </div>
 
         <div className="bg-dark-200/30 p-6 rounded-xl">
           <h3 className="text-primary-100 mb-4 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="16"></line>
               <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -107,7 +138,9 @@ const Page = async ({ params }: RouteParams) => {
           </h3>
           <ul className="space-y-2">
             {feedback?.areasForImprovement?.map((area, index) => (
-              <li key={index} className="pl-2">{area}</li>
+              <li key={index} className="pl-2">
+                {area}
+              </li>
             ))}
           </ul>
         </div>

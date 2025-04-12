@@ -95,23 +95,29 @@ const Agent = ({
 
   // Optimize transcript updates by using a memoized value
   const displayMessage = React.useMemo(() => {
-    return lastMessage || (callStatus === CallStatus.ACTIVE ? "Interview in progress..." : "");
+    return (
+      lastMessage ||
+      (callStatus === CallStatus.ACTIVE ? "Interview in progress..." : "")
+    );
   }, [lastMessage, callStatus]);
 
-  const handleGenerateFeedback = React.useCallback(async (messages: SavedMessage[]) => {
-    const { success, feedbackId: id } = await createFeedback({
-      interviewId: interviewId!,
-      userId: userId!,
-      transcript: messages,
-    });
+  const handleGenerateFeedback = React.useCallback(
+    async (messages: SavedMessage[]) => {
+      const { success, feedbackId: id } = await createFeedback({
+        interviewId: interviewId!,
+        userId: userId!,
+        transcript: messages,
+      });
 
-    if (success && id) {
-      router.push(`/interview/${interviewId}/feedback`);
-    } else {
-      console.log("Error saving feedback");
-      router.push("/");
-    }
-  }, [interviewId, userId, router]);
+      if (success && id) {
+        router.push(`/interview/${interviewId}/feedback`);
+      } else {
+        console.log("Error saving feedback");
+        router.push("/");
+      }
+    },
+    [interviewId, userId, router]
+  );
 
   useEffect(() => {
     if (callStatus === CallStatus.FINISHED) {
@@ -121,7 +127,16 @@ const Agent = ({
         handleGenerateFeedback(messages);
       }
     }
-  }, [messages, callStatus, feedbackId, interviewId, router, type, userId, handleGenerateFeedback]);
+  }, [
+    messages,
+    callStatus,
+    feedbackId,
+    interviewId,
+    router,
+    type,
+    userId,
+    handleGenerateFeedback,
+  ]);
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
@@ -181,9 +196,11 @@ const Agent = ({
               {isSpeaking ? "Speaking..." : "Listening..."}
             </p>
           )}
-          
+
           {callStatus === CallStatus.CONNECTING && (
-            <p className="status-indicator">Connecting to your interview session...</p>
+            <p className="status-indicator">
+              Connecting to your interview session...
+            </p>
           )}
         </div>
 
@@ -199,7 +216,9 @@ const Agent = ({
             />
             <h3>{userName}</h3>
             {callStatus === CallStatus.ACTIVE && !isSpeaking && (
-              <p className="text-primary-200 text-sm animate-pulse mt-2">Your turn to speak</p>
+              <p className="text-primary-200 text-sm animate-pulse mt-2">
+                Your turn to speak
+              </p>
             )}
           </div>
         </div>
@@ -219,12 +238,14 @@ const Agent = ({
             </p>
           </div>
         </div>
-      ) : callStatus === CallStatus.ACTIVE && (
-        <div className="transcript-border mt-6">
-          <div className="transcript">
-            <p className="animate-pulse">Interview starting...</p>
+      ) : (
+        callStatus === CallStatus.ACTIVE && (
+          <div className="transcript-border mt-6">
+            <div className="transcript">
+              <p className="animate-pulse">Interview starting...</p>
+            </div>
           </div>
-        </div>
+        )
       )}
 
       <div className="w-full flex justify-center mt-8">
@@ -240,7 +261,17 @@ const Agent = ({
             <span className="relative flex items-center gap-2">
               {callStatus === "INACTIVE" && (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M5 12l5 5 9-9"></path>
                   </svg>
                   Start Interview
@@ -257,7 +288,17 @@ const Agent = ({
         ) : (
           <button className="btn-disconnect" onClick={() => handleDisconnect()}>
             <span className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>

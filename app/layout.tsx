@@ -30,12 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${comfortaa.className} antialiased pattern`}
-      >
+      <body className={`${comfortaa.className} antialiased pattern`}>
         {children}
 
-        <Toaster/>
+        <Toaster />
       </body>
     </html>
   );
