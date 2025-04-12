@@ -1,4 +1,4 @@
-# Interview Prep Platform
+# InterviewMe - AI-Powered Interview Prep Platform
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://interview-me-beta.vercel.app/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
@@ -6,25 +6,43 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-11-FFCA28?style=for-the-badge&logo=firebase)](https://firebase.google.com/)
+[![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
 
-A modern web application designed to help users prepare for technical interviews with AI-powered interview simulations and detailed feedback.
+A modern web application designed to help users prepare for technical interviews with AI-powered interview simulations and detailed feedback. Perfect for job seekers, coding bootcamp graduates, and professionals looking to advance their careers.
 
 <div align="center">
   <a href="https://interview-me-beta.vercel.app/">
     <img src="public/logo.svg" alt="Interview Prep Platform" width="250" />
   </a>
   <br/>
-  <b><a href="https://interview-me-beta.vercel.app/">📝 Try it now!</a></b>
+  <b><a href="https://interview-me-beta.vercel.app/">📝 Try InterviewMe now!</a></b>
 </div>
+
+## 📋 Table of Contents
+
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#-tech-stack)
+- [🚀 Getting Started](#-getting-started)
+- [📁 Project Structure](#-project-structure)
+- [📋 Usage Guide](#-usage-guide)
+- [🔍 API Documentation](#-api-documentation)
+- [🧩 Component Library](#-component-library)
+- [⚠️ Troubleshooting](#-troubleshooting)
+- [🗺️ Roadmap](#-roadmap)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🙏 Acknowledgments](#-acknowledgments)
 
 ## ✨ Features
 
-- **🤖 AI-Powered Interviews**: Simulate real interview experiences with our advanced AI agent
-- **📊 Personalized Feedback**: Receive detailed feedback on your interview performance
-- **🧠 Technical Skills Assessment**: Get evaluated on technical knowledge, problem-solving, communication, and cultural fit
-- **📚 Interview History**: Track your progress and review past interview sessions
-- **🔐 User Authentication**: Secure user accounts with Firebase authentication
-- **📱 Responsive Design**: Fully functional on all devices from mobile to desktop
+- **🤖 AI-Powered Interviews**: Simulate real interview experiences with our advanced AI agent that adapts to your skill level
+- **📊 Personalized Feedback**: Receive detailed feedback on your interview performance with actionable improvement suggestions
+- **🧠 Technical Skills Assessment**: Get evaluated on technical knowledge, problem-solving abilities, communication skills, and cultural fit
+- **📚 Interview History**: Track your progress and review past interview sessions with performance analytics
+- **🔐 User Authentication**: Secure user accounts with Firebase authentication and role-based access control
+- **📱 Responsive Design**: Fully functional on all devices from mobile to desktop with adaptive UI components
+- **🌎 Multi-language Support**: Practice interviews in different languages to prepare for global opportunities
+- **🧠 Industry-specific Questions**: Tailored interview scenarios for different tech sectors and roles
 
 ## 🛠️ Tech Stack
 
@@ -59,14 +77,17 @@ A modern web application designed to help users prepare for technical interviews
   </table>
 </div>
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: TailwindCSS 4, Class Variance Authority
-- **Authentication**: Firebase Authentication
-- **Database**: Firebase Firestore
-- **AI Integration**: AI SDK, VAPI AI
+### Core Technologies
+
+- **Frontend**: Next.js 15, React 19, TypeScript 5
+- **Styling**: TailwindCSS 4, Class Variance Authority, shadcn/ui
+- **State Management**: React Context, Server Components
+- **Authentication**: Firebase Authentication with custom claims
+- **Database**: Firebase Firestore with optimized queries
+- **AI Integration**: AI SDK, VAPI AI with streaming responses
 - **Form Handling**: React Hook Form, Zod validation
-- **UI Components**: Radix UI primitives
-- **Deployment**: [Vercel](https://interview-me-beta.vercel.app/)
+- **UI Components**: Radix UI primitives with custom styling
+- **Deployment**: [Vercel](https://interview-me-beta.vercel.app/) with Edge Functions
 
 ## 🚀 Getting Started
 
@@ -75,17 +96,18 @@ A modern web application designed to help users prepare for technical interviews
 - Node.js 18.x or higher
 - npm, yarn, or pnpm package manager
 - Firebase account for authentication and database
+- VAPI AI account for interview simulation API access
 
 ### Installation
 
-1. Clone the repository
+1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/interview-prep.git
-   cd interview-prep
+   git clone https://github.com/ARYPROGRAMMER/InterviewMe
+   cd InterviewMe
    ```
 
-2. Install dependencies
+2. **Install dependencies**
 
    ```bash
    npm install
@@ -95,8 +117,16 @@ A modern web application designed to help users prepare for technical interviews
    pnpm install
    ```
 
-3. Set up environment variables
-   Create a `.env.local` file in the root directory with your Firebase and VAPI credentials:
+3. **Set up Firebase**
+
+   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Enable Authentication with Email/Password and Google providers
+   - Create a Firestore database in production mode
+   - Set up Firebase Admin SDK credentials
+
+4. **Configure environment variables**
+
+   Create a `.env.local` file in the root directory with your credentials:
 
    ```
    # Firebase
@@ -169,13 +199,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+### Development Guidelines
+
+- Follow the existing code style and naming conventions
+- Write tests for new features or bug fixes
+- Update documentation for any changed functionality
+- Reference relevant issues in your pull request
+
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## ✨ Live Demo
-
-Visit the live application at [https://interview-me-beta.vercel.app/](https://interview-me-beta.vercel.app/)
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -183,3 +216,14 @@ Visit the live application at [https://interview-me-beta.vercel.app/](https://in
 - Vercel for the deployment platform
 - Firebase for authentication and database services
 - VAPI AI for the interview simulation capabilities
+- shadcn/ui for the component library foundation
+- All contributors are appreciated - till now only ME
+
+---
+
+<div align="center">
+  <p>
+    <a href="https://interview-me-beta.vercel.app/">Website</a> •
+    <a href="https://github.com/ARYPROGRAMMER/InterviewMe">GitHub</a> •
+  </p>
+</div>
