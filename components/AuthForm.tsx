@@ -11,8 +11,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import FormField from "./FormField";
 import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { signUp } from "@/lib/actions/auth.action";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { signIn, signUp } from "@/lib/actions/auth.action";
 import { auth } from "@/firebase/client";
 
 const authFormSchema = (type: FormType) => {
@@ -63,8 +63,20 @@ const AuthForm = ({ type }: { type: FormType }) => {
         router.push("/sign-in");
       } else {
 
+        const { email , password } = values;
 
-        
+        const userCredentials = await signInWithEmailAndPassword(auth,email,password);
+        const idToken = await userCredentials.user.getIdToken();
+
+        if (!idToken){
+          toast.error("Sign In Failed");
+          return;
+        }
+
+        await signIn({
+          email, idToken
+        })
+
         toast.success("acc logged in");
         router.push("/");
       }
