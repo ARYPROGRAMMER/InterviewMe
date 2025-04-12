@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import React, { ReactNode } from "react";
 import SignOutButton from "@/components/SignOutButton";
 
+export const dynamic = "force-dynamic"; // Optimize SSR performance for this layout
+
 const RootLayout = async ({ children }: { children: ReactNode }) => {
   const isUserAuthenticated = await isAuthenticated();
   const user = await getCurrentUser();
@@ -17,8 +19,9 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
         <Link
           href="/"
           className="flex items-center gap-2 transition-transform duration-200 hover:scale-105"
+          prefetch={true}
         >
-          <Image src="/logo.svg" alt="logo" width={38} height={32} />
+          <Image src="/logo.svg" alt="logo" width={38} height={32} priority />
           <h2 className="text-primary-100">Interview Me</h2>
         </Link>
 

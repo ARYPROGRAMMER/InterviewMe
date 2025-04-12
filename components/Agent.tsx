@@ -16,6 +16,7 @@ enum CallStatus {
   CONNECTING = "CONNECTING",
   ACTIVE = "ACTIVE",
   FINISHED = "FINISHED",
+  GENERATING_FEEDBACK = "GENERATING_FEEDBACK", // New state for feedback generation
 }
 
 interface SavedMessage {
@@ -37,6 +38,8 @@ const Agent = ({
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastMessage, setLastMessage] = useState<string>("");
+  const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
+  const AUTO_HANGUP_SILENCE_THRESHOLD = 30000; // 30 seconds of silence for auto-hangup
 
   useEffect(() => {
     const onCallStart = () => {
@@ -51,21 +54,60 @@ const Agent = ({
       if (message.type === "transcript" && message.transcriptType === "final") {
         const newMessage = { role: message.role, content: message.transcript };
         setMessages((prev) => [...prev, newMessage]);
+
+        // Check if user asks to end the call or hang up
+        if (message.role === "user") {
+          const lowerCaseContent = message.transcript.toLowerCase();
+          if (
+            lowerCaseContent.includes("end interview") ||
+            lowerCaseContent.includes("hang up") ||
+            lowerCaseContent.includes("end call") ||
+            lowerCaseContent.includes("finish interview") ||
+            lowerCaseContent.includes("stop interview") ||
+            lowerCaseContent.includes("that's all") ||
+            lowerCaseContent.includes("i'm done") ||
+            lowerCaseContent.includes("im done") ||
+            lowerCaseContent.includes("terminate interview") ||
+            lowerCaseContent.includes("thank you for your time") ||
+            lowerCaseContent.includes("conclude") ||
+            lowerCaseContent.includes("wrap up") ||
+            lowerCaseContent.includes("finish up") ||
+            lowerCaseContent.includes("goodbye") ||
+            lowerCaseContent.includes("bye") ||
+            lowerCaseContent.includes("thanks for the interview")
+          ) {
+            handleDisconnect();
+          }
+        }
       }
     };
 
     const onSpeechStart = () => {
       console.log("speech start");
       setIsSpeaking(true);
+      setLastInteractionTime(Date.now());
     };
 
     const onSpeechEnd = () => {
       console.log("speech end");
       setIsSpeaking(false);
+      setLastInteractionTime(Date.now());
     };
 
     const onError = (error: Error) => {
       console.log("Error:", error);
+      
+      // Handle "Meeting has ended" error gracefully
+      if (error.message && error.message.includes("Meeting has ended")) {
+        console.log("Meeting ended normally, handling gracefully");
+        // If we're already in FINISHED state, don't trigger another state change
+        if (callStatus !== CallStatus.FINISHED) {
+          setCallStatus(CallStatus.FINISHED);
+        }
+      } else {
+        // For other errors, show a notification to the user
+        toast.error("There was an issue with the call. Please try again.");
+      }
     };
 
     vapi.on("call-start", onCallStart);
@@ -103,6 +145,7 @@ const Agent = ({
 
   const handleGenerateFeedback = React.useCallback(
     async (messages: SavedMessage[]) => {
+      setCallStatus(CallStatus.GENERATING_FEEDBACK);
       const { success, feedbackId: id } = await createFeedback({
         interviewId: interviewId!,
         userId: userId!,
@@ -137,6 +180,19 @@ const Agent = ({
     userId,
     handleGenerateFeedback,
   ]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (
+        callStatus === CallStatus.ACTIVE &&
+        Date.now() - lastInteractionTime > AUTO_HANGUP_SILENCE_THRESHOLD
+      ) {
+        handleDisconnect();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [callStatus, lastInteractionTime]);
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
@@ -177,6 +233,21 @@ const Agent = ({
 
   return (
     <>
+      {callStatus === CallStatus.GENERATING_FEEDBACK && (
+        <div className="fixed inset-0 bg-dark-300/80 flex items-center justify-center z-50">
+          <div className="bg-dark-200 p-8 rounded-xl shadow-lg flex flex-col items-center max-w-md">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-200 mb-4"></div>
+            <h3 className="text-xl font-semibold text-primary-100 mb-2">
+              Generating Your Feedback
+            </h3>
+            <p className="text-center text-light-100/80">
+              Please wait while our AI analyzes your interview and prepares
+              detailed feedback. This may take a moment...
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="call-view">
         {/* AI Interviewer Card */}
         <div className="card-interviewer">
@@ -283,6 +354,11 @@ const Agent = ({
                 </>
               )}
               {callStatus === "FINISHED" && "Try Again"}
+              {callStatus === "GENERATING_FEEDBACK" && (
+                <>
+                  <span className="animate-pulse">Generating Feedback...</span>
+                </>
+              )}
             </span>
           </button>
         ) : (
