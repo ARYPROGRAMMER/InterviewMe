@@ -8,7 +8,7 @@ import DisplayTechIcons from "./DisplayTechIcons";
 
 
 const InterviewCard = ({
-  interviewId,
+  id,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userId,
   role,
@@ -66,7 +66,7 @@ const InterviewCard = ({
                 <DisplayTechIcons techStack={techstack} />
 
                 <Button className="btn-primary">
-                    <Link href={feedback? `/interview/${interviewId}/feedback` : `/interview/${interviewId}`}>
+                    <Link href={feedback? `/interview/${id}/feedback` : `/interview/${id}`}>
 
                         {feedback ? "Check Feedback" : "View Interview"}
 
