@@ -26,7 +26,7 @@ const Page = async () => {
         <div className="flex flex-col gap-6 max-w-lg">
           <h2>Get Interview Ready with AI Powered Practice and Feedback</h2>
           <p className="text-lg">
-            Practice on real interview questions and ge instant Feedback
+            Practice on real interview questions and get instant feedback
           </p>
 
           <Button asChild className="btn-primary max-sm:w-full">

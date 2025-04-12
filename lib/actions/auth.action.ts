@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 const ONE_WEEK = 60 * 60 * 24 * 7 * 1000;
 
 export async function signUp(params: SignUpParams) {
-  const { uid, name, email } = params;
+  const { uid, name, email, photoURL } = params;
 
   try {
     const userRecord = await db.collection("users").doc(uid).get();
@@ -21,6 +21,7 @@ export async function signUp(params: SignUpParams) {
     await db.collection("users").doc(uid).set({
       name,
       email,
+      photoURL: photoURL || null,
     });
 
     return {
@@ -113,6 +114,24 @@ export async function isAuthenticated() {
   const user = await getCurrentUser();
 
   return !!user;
+}
+
+export async function signOut() {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("session");
+
+    return {
+      success: true,
+      message: "Signed out successfully",
+    };
+  } catch (error) {
+    console.error("Error during sign out:", error);
+    return {
+      success: false,
+      message: "Failed to sign out",
+    };
+  }
 }
 
 export async function getInterviewByUserId(

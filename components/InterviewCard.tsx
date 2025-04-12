@@ -28,15 +28,24 @@ const InterviewCard = async ({
     <div className="card-border w-[360px] max-sm:w-full min-h-96">
         <div className="card-interview">
             <div>
-                <div className="absolute top-0 right-0 w-fit px-4 py-2 bg-light-600 rounded-bl-lg">
+                <div className="absolute top-0 right-0 w-fit px-4 py-2 bg-light-600/80 backdrop-blur-sm rounded-bl-lg">
                     <p className="badge-text">
                       {normalizedType}           
                     </p>
                 </div>
 
-                <Image src={getRandomInterviewCover()} alt="cover-image" width={90} height={90} className="rounded-full object-fit size-[90px]"/>
+                <Image 
+                  src={getRandomInterviewCover()} 
+                  alt="cover-image" 
+                  width={90} 
+                  height={90} 
+                  className="rounded-full object-cover size-[90px] border-2 border-primary-200/30 shadow-md"
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAiIGhlaWdodD0iOTAiIHZpZXdCb3g9IjAgMCA5MCA5MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iOTAiIGhlaWdodD0iOTAiIGZpbGw9IiMxNzE1MzIiLz48L3N2Zz4="
+                />
 
-                <h3 className="mt-5 capitalize">
+                <h3 className="mt-5 capitalize text-primary-100">
                     {role} Interview
                 </h3>
 
@@ -52,7 +61,7 @@ const InterviewCard = async ({
                     <div className="flex flex-row gap-2 items-center">
                         <Image src="/star.svg" alt="start" width={22} height={22} />
 
-                        <p>
+                        <p className={feedback?.totalScore ? "text-primary-200 font-semibold" : ""}>
                             {feedback?.totalScore || "---"}/100
                         </p>
                     </div>
@@ -64,15 +73,13 @@ const InterviewCard = async ({
 
             </div>
 
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-row justify-between items-center">
 
                 <DisplayTechIcons techStack={techstack} />
 
                 <Button className="btn-primary">
                     <Link href={feedback? `/interview/${id}/feedback` : `/interview/${id}`}>
-
                         {feedback ? "Check Feedback" : "View Interview"}
-
                     </Link>
                 </Button>
             

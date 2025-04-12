@@ -3,13 +3,13 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import React from "react";
 
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
 import { createFeedback } from "@/lib/actions/general.action";
-
-
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -30,6 +30,7 @@ const Agent = ({
   feedbackId,
   type,
   questions,
+  userPhotoURL,
 }: AgentProps) => {
   const router = useRouter();
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
@@ -84,29 +85,35 @@ const Agent = ({
     };
   }, []);
 
-  const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+  useEffect(() => {
+    // Track the last received message for display in the transcript
+    if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      setLastMessage(lastMsg.content);
+    }
+  }, [messages]);
 
+  // Optimize transcript updates by using a memoized value
+  const displayMessage = React.useMemo(() => {
+    return lastMessage || (callStatus === CallStatus.ACTIVE ? "Interview in progress..." : "");
+  }, [lastMessage, callStatus]);
 
-    const { success , feedbackId: id } = await createFeedback({
+  const handleGenerateFeedback = React.useCallback(async (messages: SavedMessage[]) => {
+    const { success, feedbackId: id } = await createFeedback({
       interviewId: interviewId!,
       userId: userId!,
-      transcript: messages
-    })
-
+      transcript: messages,
+    });
 
     if (success && id) {
-      router.push(`/interview/${interviewId}/feedback`)
-    }
-    else {
+      router.push(`/interview/${interviewId}/feedback`);
+    } else {
       console.log("Error saving feedback");
       router.push("/");
     }
- 
- 
-  }
+  }, [interviewId, userId, router]);
 
   useEffect(() => {
-
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
         router.push("/");
@@ -114,31 +121,37 @@ const Agent = ({
         handleGenerateFeedback(messages);
       }
     }
-  }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
+  }, [messages, callStatus, feedbackId, interviewId, router, type, userId, handleGenerateFeedback]);
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
 
-    if (type === "generate") {
-      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: {
-          username: userName,
-          userid: userId,
-        },
-      });
-    } else {
-      let formattedQuestions = "";
-      if (questions) {
-        formattedQuestions = questions
-          .map((question) => `- ${question}`)
-          .join("\n");
-      }
+    try {
+      if (type === "generate") {
+        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        });
+      } else {
+        let formattedQuestions = "";
+        if (questions) {
+          formattedQuestions = questions
+            .map((question) => `- ${question}`)
+            .join("\n");
+        }
 
-      await vapi.start(interviewer, {
-        variableValues: {
-          questions: formattedQuestions,
-        },
-      });
+        await vapi.start(interviewer, {
+          variableValues: {
+            questions: formattedQuestions,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to start interview:", error);
+      toast.error("Failed to start the interview. Please try again.");
+      setCallStatus(CallStatus.INACTIVE);
     }
   };
 
@@ -163,25 +176,37 @@ const Agent = ({
             {isSpeaking && <span className="animate-speak" />}
           </div>
           <h3>AI Interviewer</h3>
+          {callStatus === CallStatus.ACTIVE && (
+            <p className="text-primary-200 text-sm animate-pulse mt-2">
+              {isSpeaking ? "Speaking..." : "Listening..."}
+            </p>
+          )}
+          
+          {callStatus === CallStatus.CONNECTING && (
+            <p className="status-indicator">Connecting to your interview session...</p>
+          )}
         </div>
 
         {/* User Profile Card */}
         <div className="card-border">
           <div className="card-content">
             <Image
-              src="/user-avatar.png"
+              src={userPhotoURL || "/user-avatar.png"}
               alt="profile-image"
               width={539}
               height={539}
-              className="rounded-full object-cover size-[120px]"
+              className="rounded-full object-cover size-[120px] border-2 border-primary-200/30 shadow-md"
             />
             <h3>{userName}</h3>
+            {callStatus === CallStatus.ACTIVE && !isSpeaking && (
+              <p className="text-primary-200 text-sm animate-pulse mt-2">Your turn to speak</p>
+            )}
           </div>
         </div>
       </div>
 
-      {messages.length > 0 && (
-        <div className="transcript-border">
+      {messages.length > 0 ? (
+        <div className="transcript-border mt-6">
           <div className="transcript">
             <p
               key={lastMessage}
@@ -190,13 +215,19 @@ const Agent = ({
                 "animate-fadeIn opacity-100"
               )}
             >
-              {lastMessage}
+              {displayMessage}
             </p>
+          </div>
+        </div>
+      ) : callStatus === CallStatus.ACTIVE && (
+        <div className="transcript-border mt-6">
+          <div className="transcript">
+            <p className="animate-pulse">Interview starting...</p>
           </div>
         </div>
       )}
 
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center mt-8">
         {callStatus !== "ACTIVE" ? (
           <button className="relative btn-call" onClick={() => handleCall()}>
             <span
@@ -206,15 +237,32 @@ const Agent = ({
               )}
             />
 
-            <span className="relative">
-              {callStatus === "INACTIVE" || callStatus === "FINISHED"
-                ? "Call"
-                : ". . ."}
+            <span className="relative flex items-center gap-2">
+              {callStatus === "INACTIVE" && (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12l5 5 9-9"></path>
+                  </svg>
+                  Start Interview
+                </>
+              )}
+              {callStatus === "CONNECTING" && (
+                <>
+                  <span className="animate-pulse">Connecting...</span>
+                </>
+              )}
+              {callStatus === "FINISHED" && "Try Again"}
             </span>
           </button>
         ) : (
           <button className="btn-disconnect" onClick={() => handleDisconnect()}>
-            End
+            <span className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              End Interview
+            </span>
           </button>
         )}
       </div>

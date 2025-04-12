@@ -142,19 +142,19 @@
     @apply bg-background text-foreground;
   }
   p {
-    @apply text-light-100;
+    @apply text-light-100/90; /* Slightly improved contrast */
   }
   h2 {
-    @apply text-3xl font-semibold;
+    @apply text-3xl font-semibold text-primary-100;
   }
   h3 {
-    @apply text-2xl font-semibold;
+    @apply text-2xl font-semibold text-primary-100;
   }
   ul {
     @apply list-disc list-inside;
   }
   li {
-    @apply text-light-100;
+    @apply text-light-100/90; /* Slightly improved contrast */
   }
 }
 
@@ -175,10 +175,10 @@
     @apply flex min-h-14 w-full items-center justify-center gap-1.5 rounded-md;
   }
   .btn-primary {
-    @apply w-fit !bg-primary-200 !text-dark-100 hover:!bg-primary-200/80 !rounded-full !font-bold px-5 cursor-pointer min-h-10;
+    @apply w-fit !bg-primary-200 !text-dark-100 hover:!bg-primary-200/80 !rounded-full !font-bold px-5 cursor-pointer min-h-10 transition-all duration-200 transform hover:scale-105 focus:scale-95 shadow-md hover:shadow-lg;
   }
   .btn-secondary {
-    @apply w-fit !bg-dark-200 !text-primary-200 hover:!bg-dark-200/80 !rounded-full !font-bold px-5 cursor-pointer min-h-10;
+    @apply w-fit !bg-dark-200 !text-primary-200 hover:!bg-dark-200/80 !rounded-full !font-bold px-5 cursor-pointer min-h-10 transition-all duration-200 transform hover:scale-105 focus:scale-95 shadow-md hover:shadow-lg;
   }
 
   .btn-upload {
@@ -217,11 +217,11 @@
     }
 
     .card-interviewer {
-      @apply flex-center flex-col gap-2 p-7 h-[400px] blue-gradient-dark rounded-lg border-2 border-primary-200/50 flex-1 sm:basis-1/2 w-full;
+      @apply flex-center flex-col gap-2 p-7 h-[400px] blue-gradient-dark rounded-lg border-2 border-primary-200/50 flex-1 sm:basis-1/2 w-full shadow-lg relative overflow-hidden;
     }
 
     .avatar {
-      @apply z-10 flex items-center justify-center blue-gradient rounded-full size-[120px] relative;
+      @apply z-10 flex items-center justify-center blue-gradient rounded-full size-[120px] relative shadow-md border border-primary-200/20;
 
       .animate-speak {
         @apply absolute inline-flex size-5/6 animate-ping rounded-full bg-primary-200 opacity-75;
@@ -229,22 +229,26 @@
     }
 
     .card-border {
-      @apply border-gradient p-0.5 rounded-2xl flex-1 sm:basis-1/2 w-full h-[400px] max-md:hidden;
+      @apply border-gradient p-0.5 rounded-2xl flex-1 sm:basis-1/2 w-full h-[400px] max-md:hidden shadow-lg;
     }
 
     .card-content {
       @apply flex flex-col gap-2 justify-center items-center p-7 dark-gradient rounded-2xl min-h-full;
     }
+    
+    .status-indicator {
+      @apply absolute bottom-4 left-0 right-0 text-center text-sm text-primary-200/80 animate-pulse;
+    }
   }
 
   .transcript-border {
-    @apply border-gradient p-0.5 rounded-2xl w-full;
+    @apply border-gradient p-0.5 rounded-2xl w-full mt-6;
 
     .transcript {
-      @apply dark-gradient rounded-2xl  min-h-12 px-5 py-3 flex items-center justify-center;
+      @apply dark-gradient rounded-2xl min-h-12 px-5 py-3 flex items-center justify-center;
 
       p {
-        @apply text-lg text-center text-white;
+        @apply text-lg text-center text-white max-sm:text-base max-sm:px-2;
       }
     }
   }
@@ -266,7 +270,7 @@
   }
 
   .card-cta {
-    @apply flex flex-row blue-gradient-dark rounded-3xl px-16 py-6 items-center justify-between max-sm:px-4;
+    @apply flex flex-row blue-gradient-dark rounded-3xl px-16 py-6 items-center justify-between max-sm:px-6 max-sm:py-8 max-sm:flex-col max-sm:gap-8;
   }
 
   .interviews-section {
@@ -282,11 +286,11 @@
   }
 
   .tech-tooltip {
-    @apply absolute bottom-full mb-1 hidden group-hover:flex px-2 py-1 text-xs text-white bg-gray-700 rounded-md shadow-md;
+    @apply absolute bottom-full mb-2 hidden group-hover:flex px-3 py-2 text-xs text-white bg-dark-300 backdrop-blur-sm rounded-lg shadow-lg border border-primary-200/20 z-20 min-w-max animate-fadeIn;
   }
 
   .card-interview {
-    @apply dark-gradient rounded-2xl min-h-full flex flex-col p-6 relative overflow-hidden gap-10 justify-between;
+    @apply dark-gradient rounded-2xl min-h-full flex flex-col p-6 relative overflow-hidden gap-10 justify-between shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01];
 
     .badge-text {
       @apply text-sm font-semibold capitalize;
