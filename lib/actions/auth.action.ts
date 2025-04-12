@@ -59,10 +59,8 @@ export async function signIn(params: SignInParams) {
     }
 
     await setSessionCookie(idToken);
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any 
-  catch (e: any) {
-
+  } catch (e: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.log(e);
 
     return {
@@ -95,15 +93,17 @@ export async function getCurrentUser(): Promise<User | null> {
 
   try {
     const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
-    const userRecord = await db.collection('users').doc(decodedClaims.uid).get();
+    const userRecord = await db
+      .collection("users")
+      .doc(decodedClaims.uid)
+      .get();
 
     return {
       ...userRecord.data(),
       id: userRecord.id,
-    } as User
-  }
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any 
-  catch (e: any) {
+    } as User;
+  } catch (e: any) {
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.log(e);
     return null;
   }
@@ -115,12 +115,34 @@ export async function isAuthenticated() {
   return !!user;
 }
 
-export async function getInterviewByUserId (userId: string): Promise<Interview[] | null> {
-  const interviews = await db.collection("interviews").where("userId","==",userId).orderBy("createdAt","desc").get();
+export async function getInterviewByUserId(
+  userId: string
+): Promise<Interview[] | null> {
+  const interviews = await db
+    .collection("interviews")
+    .where("userId", "==", userId)
+    .orderBy("createdAt", "desc")
+    .get();
 
-  return interviews.docs.map((doc)=>({
+  return interviews.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data()
-  })) as Interview[]
+    ...doc.data(),
+  })) as Interview[];
+}
 
+export async function getLatestInterviews(
+  params: GetLatestInterviewsParams
+): Promise<Interview[] | null> {
+  const { userId, limit = 20 } = params;
+  const interviews = await db
+    .collection("interviews")
+    .where("finalized", "==", true)
+    .where("userId", "!=", userId)
+    .limit(limit)
+    .get();
+
+  return interviews.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Interview[];
 }
