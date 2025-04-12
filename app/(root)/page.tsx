@@ -1,11 +1,15 @@
 import InterviewCard from "@/components/InterviewCard";
 import { Button } from "@/components/ui/button";
 import { dummyInterviews } from "@/constants";
+import { getCurrentUser, getInterviewByUserId } from "@/lib/actions/auth.action";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const Page = () => {
+const Page = async () => {
+
+  const user = await getCurrentUser();
+  const userInterviews = await getInterviewByUserId(user?.id!);
   return (
     <>
       <section className="card-cta">
