@@ -66,7 +66,15 @@ const Agent = ({
             lowerCaseContent.includes("stop interview") ||
             lowerCaseContent.includes("that's all") ||
             lowerCaseContent.includes("i'm done") ||
-            lowerCaseContent.includes("im done")
+            lowerCaseContent.includes("im done") ||
+            lowerCaseContent.includes("terminate interview") ||
+            lowerCaseContent.includes("thank you for your time") ||
+            lowerCaseContent.includes("conclude") ||
+            lowerCaseContent.includes("wrap up") ||
+            lowerCaseContent.includes("finish up") ||
+            lowerCaseContent.includes("goodbye") ||
+            lowerCaseContent.includes("bye") ||
+            lowerCaseContent.includes("thanks for the interview")
           ) {
             handleDisconnect();
           }
@@ -88,6 +96,18 @@ const Agent = ({
 
     const onError = (error: Error) => {
       console.log("Error:", error);
+      
+      // Handle "Meeting has ended" error gracefully
+      if (error.message && error.message.includes("Meeting has ended")) {
+        console.log("Meeting ended normally, handling gracefully");
+        // If we're already in FINISHED state, don't trigger another state change
+        if (callStatus !== CallStatus.FINISHED) {
+          setCallStatus(CallStatus.FINISHED);
+        }
+      } else {
+        // For other errors, show a notification to the user
+        toast.error("There was an issue with the call. Please try again.");
+      }
     };
 
     vapi.on("call-start", onCallStart);
