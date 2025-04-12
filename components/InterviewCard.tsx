@@ -6,8 +6,10 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import DisplayTechIcons from "./DisplayTechIcons";
 
+
 const InterviewCard = ({
   interviewId,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userId,
   role,
   type,
