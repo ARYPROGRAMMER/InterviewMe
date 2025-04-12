@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,15 +21,19 @@ import { auth, googleProvider } from "@/firebase/client";
 
 const authFormSchema = (type: FormType) => {
   return z.object({
-    name: type === "sign-up" ? z.string().min(3) : z.string().optional(),
-    email: z.string().email(),
-    password: z.string().min(3),
+    name:
+      type === "sign-up"
+        ? z.string().min(3, "Name must be at least 3 characters")
+        : z.string().optional(),
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
   });
 };
 
 const AuthForm = ({ type }: { type: FormType }) => {
   const router = useRouter();
   const formSchema = authFormSchema(type);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,6 +47,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
   // Handle Google sign in
   const handleGoogleSignIn = async () => {
     try {
+      setIsLoading(true);
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
@@ -79,6 +84,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
         });
       }
 
+      // Prefetch the destination page to speed up navigation
+      router.prefetch("/");
       router.push("/");
     } catch (error: any) {
       console.error("Google sign in error:", error);
@@ -94,11 +101,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
           `Sign in failed: ${error.message || "Please try again later."}`
         );
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setIsLoading(true);
       if (type === "sign-up") {
         const { name, email, password } = values;
 
@@ -126,6 +136,9 @@ const AuthForm = ({ type }: { type: FormType }) => {
           description:
             "Welcome to Interview Me! Please sign in with your new credentials.",
         });
+
+        // Prefetch the destination page to speed up navigation
+        router.prefetch("/sign-in");
         router.push("/sign-in");
       } else {
         const { email, password } = values;
@@ -152,6 +165,9 @@ const AuthForm = ({ type }: { type: FormType }) => {
         toast.success("Signed in successfully!", {
           description: "Welcome back to Interview Me.",
         });
+
+        // Prefetch the destination page to speed up navigation
+        router.prefetch("/");
         router.push("/");
       }
     } catch (error: any) {
@@ -171,6 +187,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
       } else {
         toast.error("An error occurred. Please try again later.");
       }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -227,8 +245,21 @@ const AuthForm = ({ type }: { type: FormType }) => {
               type="password"
             />
 
-            <Button className="btn mt-4" type="submit">
-              {isSignin ? "Sign In" : "Create an Account"}
+            <Button
+              className="btn mt-4 w-full"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full border-2 border-light-100 border-t-transparent animate-spin"></div>
+                  {isSignin ? "Signing In..." : "Creating Account..."}
+                </div>
+              ) : isSignin ? (
+                "Sign In"
+              ) : (
+                "Create an Account"
+              )}
             </Button>
           </form>
         </Form>
@@ -242,10 +273,29 @@ const AuthForm = ({ type }: { type: FormType }) => {
         <Button
           type="button"
           onClick={handleGoogleSignIn}
-          className="bg-dark-200 hover:bg-dark-200/80 text-light-100 flex items-center justify-center gap-2 transition-all"
+          disabled={isLoading}
+          className="bg-dark-200 hover:bg-dark-200/80 text-light-100 flex items-center justify-center gap-2 transition-all w-full"
         >
-          <Image src="/google.svg" alt="Google" width={20} height={20} />
-          {isSignin ? "Sign in with Google" : "Sign up with Google"}
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 rounded-full border-2 border-light-100 border-t-transparent animate-spin"></div>
+              {isSignin ? "Signing In..." : "Signing Up..."}
+            </div>
+          ) : (
+            <>
+              <div className="w-5 h-5 relative">
+                <Image
+                  src="/google.svg"
+                  alt="Google"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              {isSignin ? "Sign in with Google" : "Sign up with Google"}
+            </>
+          )}
         </Button>
 
         <p className="text-center">

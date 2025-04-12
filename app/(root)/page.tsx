@@ -5,6 +5,7 @@ import {
   getInterviewByUserId,
   getLatestInterviews,
 } from "@/lib/actions/auth.action";
+import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -17,8 +18,29 @@ const Page = async () => {
     await getLatestInterviews({ userId: user?.id! }),
   ]);
 
-  const hasPastInterviews = userInterviews?.length! > 0;
-  const hasUpcomingInterviews = latestInterviews?.length! > 0;
+  // Prefetch feedback data for all interviews to speed up rendering
+  const userInterviewsWithFeedback = await Promise.all(
+    (userInterviews || []).map(async (interview) => {
+      const feedback = await getFeedbackByInterviewId({
+        interviewId: interview.id,
+        userId: user?.id!,
+      });
+      return { ...interview, feedback };
+    })
+  );
+
+  const latestInterviewsWithFeedback = await Promise.all(
+    (latestInterviews || []).map(async (interview) => {
+      const feedback = await getFeedbackByInterviewId({
+        interviewId: interview.id,
+        userId: user?.id!,
+      });
+      return { ...interview, feedback };
+    })
+  );
+
+  const hasPastInterviews = userInterviewsWithFeedback.length > 0;
+  const hasUpcomingInterviews = latestInterviewsWithFeedback.length > 0;
 
   return (
     <>
@@ -29,8 +51,13 @@ const Page = async () => {
             Practice on real interview questions and get instant feedback
           </p>
 
-          <Button asChild className="btn-primary max-sm:w-full">
-            <Link href="/interview">Start an Interview</Link>
+          <Button
+            asChild
+            className="btn-primary max-sm:w-full hover:scale-105 transition-transform"
+          >
+            <Link href="/interview" prefetch={true}>
+              Start an Interview
+            </Link>
           </Button>
         </div>
         <Image
@@ -39,6 +66,7 @@ const Page = async () => {
           width={400}
           height={400}
           className="max-sm:hidden"
+          priority
         />
       </section>
 
@@ -46,7 +74,7 @@ const Page = async () => {
         <h2>Your Interviews</h2>
         <div className="interviews-section">
           {hasPastInterviews ? (
-            userInterviews?.map((interview) => (
+            userInterviewsWithFeedback.map((interview) => (
               <InterviewCard {...interview} key={interview.id} />
             ))
           ) : (
@@ -60,7 +88,7 @@ const Page = async () => {
 
         <div className="interviews-section">
           {hasUpcomingInterviews ? (
-            latestInterviews?.map((interview) => (
+            latestInterviewsWithFeedback.map((interview) => (
               <InterviewCard {...interview} key={interview.id} />
             ))
           ) : (
