@@ -365,6 +365,13 @@ const Agent = ({
             username: userName,
             userid: userId,
           },
+          transcriber: {
+            provider: "deepgram",
+            model: "nova-3",
+            language: "en",
+            // Optimize for real-time responses
+            endpointing: 500, // Reduced endpointing for faster response
+          },
         });
       } else {
         let formattedQuestions = "";
@@ -377,6 +384,13 @@ const Agent = ({
         await vapi.start(interviewer, {
           variableValues: {
             questions: formattedQuestions,
+          },
+          transcriber: {
+            provider: "deepgram",
+            model: "nova-3",
+            language: "en",
+            // Optimize for real-time responses
+            endpointing: 500, // Reduced endpointing for faster response
           },
         });
       }
